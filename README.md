@@ -11,7 +11,8 @@ Predictive machine learning models are becoming increasingly deployed in high-st
 * Python >= 3.8
 * PyTorch >= 2.0
 * Captum (`conda install captum -c pytorch` or `conda install captum -c conda-forge`
-* Opacus (`conda install -c conda-forge opacus`)
+* [Fast Differential Privacy](https://github.com/awslabs/fast-differential-privacy/tree/main) (for fine-tuning models with differential privacy)
+* timm (`pip install timm`) for PyTorch image models
 
 ---
 ### Running Experiments
