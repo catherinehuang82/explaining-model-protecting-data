@@ -1,9 +1,11 @@
+'''For a single model, compute post-hoc explanations on all data 
+examples and save per-example attack scores: explanation variance, L1 norm, L2 norm.'''
+
 import argparse
 import os
 import sys
 import multiprocessing
 
-print(sys.path)
 from captum.attr import InputXGradient, Saliency, IntegratedGradients, GradientShap, LRP, GuidedBackprop
 
 import numpy as np

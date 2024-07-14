@@ -1,4 +1,6 @@
-# from fastDP import PrivacyEngine
+'''Fine-tune a single vision transformer model and save its state dictionary.'''
+
+from fastDP import PrivacyEngine
 
 import os
 import gc
@@ -10,16 +12,14 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import random_split, DataLoader, Dataset, TensorDataset, Subset
 import timm
-# from opacus.validators import ModuleValidator
-# from opacus.accountants.utils import get_noise_multiplier
+from opacus.validators import ModuleValidator
+from opacus.accountants.utils import get_noise_multiplier
 from tqdm import tqdm
 from statistics import mean
 import warnings; warnings.filterwarnings("ignore")
 
 
-'''Train models with PyTorch.'''
 def main(args):
-            
     if args.clipping_mode not in ['nonDP', 'BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt', 'nonDP-BiTFiT', 'BiTFiT']:
         print("Mode must be one of 'nonDP', 'BK-ghost', 'BK-MixGhostClip', 'BK-MixOpt', 'nonDP-BiTFiT', 'BiTFiT'")
         return None
@@ -114,13 +114,12 @@ def main(args):
     df_indices.to_csv(f'{indices_dir}/{args.experiment_no}.csv', index=False)
     
     ####### training #######
-
     n_acc_steps = args.bs // args.mini_bs # gradient accumulation steps
 
     # build model
     print('==> Building model..', args.model,'; BatchNorm is replaced by GroupNorm. Mode: ', args.clipping_mode)
     net = timm.create_model(args.model,pretrained=True,num_classes=num_classes)    
-    # net = ModuleValidator.fix(net)
+    net = ModuleValidator.fix(net)
     net=net.to(device)
 
     print('Number of total parameters: ', sum([p.numel() for p in net.parameters()]))
@@ -155,7 +154,7 @@ def main(args):
             noise_multiplier=sigma,
             epochs=args.epochs,
             clipping_mode=clipping_mode,
-            origin_params=args.origin_params,#['patch_embed.proj.bias'],
+            origin_params=args.origin_params, #['patch_embed.proj.bias'],
         )
         privacy_engine.attach(optimizer)        
 

@@ -18,7 +18,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torchvision
-# from torchvision.transforms.functional import gaussian_blur
 from torch.utils.data import Subset
 from torch import linalg as LA
 from statistics import mean

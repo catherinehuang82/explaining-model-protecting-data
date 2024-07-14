@@ -1,3 +1,5 @@
+'''For a single attack parameter setting, run the attack and generates metrics and plots.'''
+
 import argparse
 import os
 import numpy as np
