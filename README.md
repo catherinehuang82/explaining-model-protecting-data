@@ -1,5 +1,5 @@
 # _Explaining the Model, Protecting Your Data_: Revealing and Mitigating the Data Privacy Risks of Post-Hoc Model Explanations via Membership Inference
-Code for the paper Explaining the Model, Protecting Your Data: Revealing and Mitigating the Data Privacy Risks of Post-Hoc Model Explanations via Membership Inference_. To be presented at the ICML 2024 Workshop on the Next Generation of AI Safety.
+Code for the paper _Explaining the Model, Protecting Your Data: Revealing and Mitigating the Data Privacy Risks of Post-Hoc Model Explanations via Membership Inference_. To be presented at the ICML 2024 Workshop on the Next Generation of AI Safety.
 
 ---
 
