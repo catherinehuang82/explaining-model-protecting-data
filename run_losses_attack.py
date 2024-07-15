@@ -1,4 +1,4 @@
-'''For a single attack parameter setting, run the attack and generates metrics and plots.'''
+''For a single attack parameter setting, run the Loss LiRA baseline attack and generate metrics and plots.'''
 
 import argparse
 import os
@@ -13,7 +13,7 @@ import scipy.stats
 from sklearn import metrics
 from sklearn.metrics import roc_curve
 
-def get_data(args, valid_experiment_list, attacktype_dir):
+def get_data(args, valid_experiment_list):
     indices = np.empty((args.total_data_examples, len(valid_experiment_list)))
     for i, exp in enumerate(valid_experiment_list):
         if 'nonDP' not in args.clipping_mode:
@@ -27,9 +27,9 @@ def get_data(args, valid_experiment_list, attacktype_dir):
 
     for i, exp in enumerate(valid_experiment_list):
         if 'nonDP' not in args.clipping_mode:
-            scores_dir = f"attack_data/{attacktype_dir}_{args.data}/model={args.model}_mode={args.clipping_mode}_eps={args.epsilon}_type={args.explanation_type}_nsamples={args.nsamples}_epochs={args.epochs}"
+            scores_dir = f"attack_data/losses_{args.data}/model={args.model}_mode={args.clipping_mode}_eps={args.epsilon}_epochs={args.epochs}"
         else:
-            scores_dir = f"attack_data/{attacktype_dir}_{args.data}/model={args.model}_mode={args.clipping_mode}_type={args.explanation_type}_nsamples={args.nsamples}_epochs={args.epochs}"
+            scores_dir = f"attack_data/losses_{args.data}/model={args.model}_mode={args.clipping_mode}_epochs={args.epochs}"
         df = pd.read_csv(f"{scores_dir}/{exp}.csv")
         scores[:,i] = df[str(exp)][:args.total_data_examples]
     return indices, scores
@@ -107,25 +107,18 @@ def main(args):
         model_short='beit_base'
     elif 'beitv2_base_patch16_224' in args.model:
         model_short='beitv2_base'
-        
-    if args.attack_type == 'Variance':
-        attacktype_dir = 'variances'
-    elif args.attack_type == 'L1 Norm':
-        attacktype_dir = 'norms_l1'
-    elif args.attack_type == 'L2 Norm':
-        attacktype_dir = 'norms_l2'
-    
+       
     results = {
     args.clipping_mode: {
-        args.explanation_type: {'tprs': [], 'aucs': []},
+        'Losses': {'tprs': [], 'aucs': []},
         }
     }
 
     mean_fpr = np.linspace(0, 1, 10000)
 
-    tpr_001_dir = f'attack_data/tpr001_{args.data}_{args.attack_type}'
-    tpr_01_dir = f'attack_data/tpr01_{args.data}_{args.attack_type}'
-    auc_dir = f'attack_data/auc_{args.data}_{args.attack_type}'
+    tpr_001_dir = f'attack_data/tpr001_{args.data}_Losses'
+    tpr_01_dir = f'attack_data/tpr01_{args.data}_Losses'
+    auc_dir = f'attack_data/auc_{args.data}_Losses'
     if not os.path.exists(tpr_001_dir):
         os.makedirs(tpr_001_dir)
         print(f"Created directory: {tpr_001_dir}")
@@ -135,9 +128,9 @@ def main(args):
     if not os.path.exists(auc_dir):
         os.makedirs(auc_dir)
         print(f"Created directory: {auc_dir}")
-    tpr_001_file_path = f'{tpr_001_dir}/model={args.model}_mode={args.clipping_mode}_type={args.explanation_type}_epochs={args.epochs}.txt'
-    tpr_01_file_path = f'{tpr_01_dir}/model={args.model}_mode={args.clipping_mode}_type={args.explanation_type}_epochs={args.epochs}.txt'
-    auc_file_path = f'{auc_dir}/model={args.model}_mode={args.clipping_mode}_type={args.explanation_type}_epochs={args.epochs}.txt'
+    tpr_001_file_path = f'{tpr_001_dir}/model={args.model}_mode={args.clipping_mode}_epochs={args.epochs}.txt'
+    tpr_01_file_path = f'{tpr_01_dir}/model={args.model}_mode={args.clipping_mode}_epochs={args.epochs}.txt'
+    auc_file_path = f'{auc_dir}/model={args.model}_mode={args.clipping_mode}_epochs={args.epochs}.txt'
     with open(tpr_001_file_path, 'w') as file:
         pass
     with open(tpr_01_file_path, 'w') as file:
@@ -148,23 +141,23 @@ def main(args):
     valid_experiment_list = []
     for attack_model_index in range(args.num_experiments):
         if 'nonDP' not in args.clipping_mode:
-            lira_dir = f"attack_data/{attacktype_dir}_{args.data}/model={args.model}_mode={args.clipping_mode}_eps={args.epsilon}_type={args.explanation_type}_nsamples={args.nsamples}_epochs={args.epochs}"
+            lira_dir = f"attack_data/losses_{args.data}/model={args.model}_mode={args.clipping_mode}_eps={args.epsilon}_epochs={args.epochs}"
         else:
-            lira_dir = f"attack_data/{attacktype_dir}_{args.data}/model={args.model}_mode={args.clipping_mode}_type={args.explanation_type}_nsamples={args.nsamples}_epochs={args.epochs}"
+            lira_dir = f"attack_data/losses_{args.data}/model={args.model}_mode={args.clipping_mode}_epochs={args.epochs}"
         if os.path.exists(f"{lira_dir}/{attack_model_index}.csv"):
             valid_experiment_list.append(attack_model_index)
     print(valid_experiment_list)
 
     for attack_model_index, _ in tqdm(enumerate(valid_experiment_list)):
 
-        tpr_001_dir = f'attack_data/tpr001_{args.data}_{args.attack_type}'
-        tpr_01_dir = f'attack_data/tpr01_{args.data}_{args.attack_type}'
-        tpr_001_file_path = f'{tpr_001_dir}/model={args.model}_mode={args.clipping_mode}_type={args.explanation_type}_epochs={args.epochs}.txt'
-        tpr_01_file_path = f'{tpr_01_dir}/model={args.model}_mode={args.clipping_mode}_type={args.explanation_type}_epochs={args.epochs}.txt'
-        auc_dir = f'attack_data/auc_{args.data}_{args.attack_type}'
-        auc_file_path = f'{auc_dir}/model={args.model}_mode={args.clipping_mode}_type={args.explanation_type}_epochs={args.epochs}.txt'
+        tpr_001_dir = f'attack_data/tpr001_{args.data}_Losses'
+        tpr_01_dir = f'attack_data/tpr01_{args.data}_Losses'
+        tpr_001_file_path = f'{tpr_001_dir}/model={args.model}_mode={args.clipping_mode}_epochs={args.epochs}.txt'
+        tpr_01_file_path = f'{tpr_01_dir}/model={args.model}_mode={args.clipping_mode}_epochs={args.epochs}.txt'
+        auc_dir = f'attack_data/auc_{args.data}_Losses'
+        auc_file_path = f'{auc_dir}/model={args.model}_mode={args.clipping_mode}_epochs={args.epochs}.txt'
 
-        indices, scores = get_data(args, valid_experiment_list, attacktype_dir)
+        indices, scores = get_data(args, valid_experiment_list)
 
         in_scores, out_scores, t0, mask_t0 = split_scores(scores, indices, min_keep=3, attack_model_index=attack_model_index)
 
@@ -185,23 +178,23 @@ def main(args):
         with open(auc_file_path, 'a') as file:
             file.write(str(auc) + '\n')
 
-        results[args.clipping_mode][args.explanation_type]['tprs'].append(tpr)
-        results[args.clipping_mode][args.explanation_type]['aucs'].append(auc)   
+        results[args.clipping_mode]['Losses']['tprs'].append(tpr)
+        results[args.clipping_mode]['Losses']['aucs'].append(auc)   
 
     plt.figure()
-    tprs = np.array(results[args.clipping_mode][f'{args.explanation_type}']['tprs']).T
-    aucs = np.array(results[args.clipping_mode][f'{args.explanation_type}']['aucs']).T
+    tprs = np.array(results[args.clipping_mode]['Losses']['tprs']).T
+    aucs = np.array(results[args.clipping_mode]['Losses']['aucs']).T
     mean_tpr = np.mean(tprs, axis=1)
     std_tpr = np.std(tprs, axis=1)
     mean_tpr[-1] = 1.0
     mean_auc = np.mean(aucs).round(2)
     std_auc = np.std(aucs).round(2)
 
-    plt.loglog(mean_fpr, mean_tpr, label=f"Expl Type={args.explanation_type}: (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc), lw=2, alpha=0.8)
+    plt.loglog(mean_fpr, mean_tpr, label=f"AUC = %0.2f $\pm$ %0.2f" % (mean_auc, std_auc), lw=2, alpha=0.8)
     tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
     tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
     plt.fill_between(mean_fpr, tprs_lower, tprs_upper, alpha=0.2)
-    title = f'{args.attack_type} LiRA, {args.data}, {model_short}'
+    title = f'Losses LiRA, {args.data}, {model_short}'
     plt.plot([0,1], [0,1], linestyle='dotted', color='black')
     plt.legend(loc=4, fontsize=12)
     plt.xlabel('False Positive Rate', fontsize=12)
@@ -216,20 +209,20 @@ def main(args):
 
     #### plotting non-Log scaled curves ####
     plt.figure()
-    tprs = np.array(results[args.clipping_mode][f'{args.explanation_type}']['tprs']).T
-    aucs = np.array(results[args.clipping_mode][f'{args.explanation_type}']['aucs']).T
+    tprs = np.array(results[args.clipping_mode]['Losses']['tprs']).T
+    aucs = np.array(results[args.clipping_mode]['Losses']['aucs']).T
     mean_tpr = np.mean(tprs, axis=1)
     std_tpr = np.std(tprs, axis=1)
     mean_tpr[-1] = 1.0
     mean_auc = np.mean(aucs).round(2)
     std_auc = np.std(aucs).round(2)
 
-    plt.plot(mean_fpr, mean_tpr, label=f"Expl Type={args.explanation_type}: (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc), lw=2, alpha=0.8)
+    plt.plot(mean_fpr, mean_tpr, label=f"AUC = %0.2f $\pm$ %0.2f" % (mean_auc, std_auc), lw=2, alpha=0.8)
     tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
     tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
     plt.fill_between(mean_fpr, tprs_lower, tprs_upper, alpha=0.2) #label=r"$\pm$ 1 std. dev.")
 
-    title = f'{args.attack_type} LiRA, {args.data}, Non-Log, {model_short}'
+    title = f'Losses LiRA, {args.data}, Non-Log, {model_short}'
     plt.plot([0,1], [0,1], linestyle='dotted', color='black')
     plt.legend(loc=4)
     plt.xlabel('False Positive Rate', fontsize=12)
@@ -256,10 +249,7 @@ if __name__ == '__main__':
     parser.add_argument('--epsilon', default=2.0, type=float, help='target epsilon')
     parser.add_argument('--clipping_mode', default='nonDP', type=str)
     parser.add_argument('--model', default='vit_small_patch16_224', type=str) # try: resnet18
-    parser.add_argument('--attack_type', default='Variance', choices=['Variance', 'L1 Norm', 'L2 Norm'], type=str) 
-    
     parser.add_argument('--explanation_type', default='ixg', choices=['gs', 'ig', 'ixg', 'lrp', 'sl', 'gb'])
-    parser.add_argument('--nsamples', type=int, default=20)
     parser.add_argument('--save_fig', type=lambda x: x.lower() == 'true', default=True)
     parser.add_argument('--total_data_examples', type=int, default=20000)
     args = parser.parse_args()
