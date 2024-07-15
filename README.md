@@ -26,7 +26,10 @@ The scripts, as they are configured, generate attack metrics and (log-scaled and
 This repository is organized as follows:
 * `train.py` is the script for fine-tuning a single vision transformer model and saving its state dictionary.
 * `get_explanations.py` is the script that, for a single model, computes post-hoc explanations on all data examples and saves per-example attack scores: explanation variance, L1 norm, L2 norm.
-* `run_attack.py` is the script that, for a single attack parameter setting, runs the attack and generates metrics + plots
+* `run_attack.py` is the script that, for a single attack parameter setting, runs the attack and generates metrics and plots.
+* `get_losses.py` is the script that, for a single model, computes per-example cross-entropy losses for the Loss LiRA baseline.
+* `run_losses_attack.py` is the script that, for a single attack parameter setting, runs Loss LiRA.
+* `attack_metrics.ipynb` is a helper notebook that generates tables that succinctly display AUC and TPR @ FPR = 0.01, 0.001 for a particular inputted attack setting.
 * `scripts/` holds experiment bash scripts. As of right now, the scripts must be run using the `sbatch` Slurm command, but we are working towards having at least some scripts be runnable with `bash`.
 * `attack_data/` holds data helpful in the attack pipeline, from model state dicts to explanation scores, as well as any reported metrics, such as model accuracies and attack TPRs at certain FPRs.
 * `data/` holds the datasets [CIFAR-10, CIFAR-100, GTSRB, SVHN, Food 101] downloaded off of `torchvision.datasets` but is empty in this repository.
